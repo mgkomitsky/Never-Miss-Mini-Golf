@@ -1,3 +1,7 @@
+#This code does the image tracking to calculate the projected target for the ball.
+#Be sure to install the imutils, OpenCV, and serial packages.
+
+
 from collections import deque
 from imutils.video import VideoStream
 import numpy as np
