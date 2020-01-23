@@ -9,11 +9,20 @@ char receivedChars[numChars];   // an array to store the received data
 boolean newData = false;
 
 int projected_target_pixels = 0;            
-int current_position = 0;
+int current_position_pixels = 0;
 int pixels_per_step = 1;
 int number_of_pixels = 0;
 int number_of_steps = 0;
+int target_zone_length_in_steps = 10;
+int small_boundary = 0;
+int big_boundary = 10;
 
+
+int left_limit_switch = 2;
+int right_limit_switch = 3;
+int direction_pin = 9;
+int enable_pin = 10;
+int motor_pulse_pin = 7;
 
 
 void setup() {
@@ -24,8 +33,15 @@ void setup() {
     delay(1000);
     Serial.println("<Arduino is ready>");
     pinMode(LED_BUILTIN,OUTPUT);
+    pinMode(9,OUTPUT); //Direction
+    pinMode(10, OUTPUT); //Enable
+    pinMode(2,INPUT); //Right Limit
+    pinMode(3,INPUT); //Left Limit
+    attachInterrupt(digitalPinToInterrupt(left_limit_switch), homeDevice_towards_right, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(right_limit_switch), homeDevice_towards_left, CHANGE);
     
-    //homeDevice();
+    
+    //homeDevice_towards_left();
 }
 
 
@@ -39,14 +55,32 @@ void loop() {
 
 
 
-
-
-void homeDevice()
+void homeDevice_towards_right()
 {
 
-    //Step left until switch triggers
-    //Step to midpoint
-    //Set current position to midpoint
+    while(digitalRead(left_limit_switch)==LOW)
+    {
+      move_motor(1);
+    }
+
+ 
+     
+     move_motor(round(-target_zone_length_in_steps/2)); //Must be an integer
+     current_position_pixels == 0;
+  
+}
+
+void homeDevice_towards_left()
+{
+
+    while(digitalRead(right_limit_switch)==LOW)
+    {
+      move_motor(-1);
+    }
+
+     
+     move_motor(round(target_zone_length_in_steps/2)); //Must be an integer
+     current_position_pixels == 0;
   
 }
 
@@ -87,39 +121,37 @@ void move_motor(int number_of_steps)
 if(number_of_steps > 0)
   {
 
-    //enable
-    //set direction
+        digitalWrite(enable_pin,HIGH);//enable
+        digitalWrite(direction_pin,HIGH);//set direction
 
       for (int i = 0; i <= number_of_steps; i++)
 
         {
-          digitalWrite(7,HIGH);
+          digitalWrite(motor_pulse_pin,HIGH);
           delay(10);
-          digitalWrite(7,LOW);
+          digitalWrite(motor_pulse_pin,LOW);
         }
    
-        //disable  
+        digitalWrite(enable_pin,LOW);//disable  
   } 
 
   else 
   
   {
-
-    //enable
-    //set direction
+        digitalWrite(10,HIGH);//enable
+        digitalWrite(direction_pin,LOW);//set direction
    
 
       for (int i = 0; i <= number_of_steps; i--)
 
         {
-          digitalWrite(7,HIGH);
+          digitalWrite(motor_pulse_pin,HIGH);
           delay(10);
-          digitalWrite(7,LOW);
+          digitalWrite(motor_pulse_pin,LOW);
         }
       
-        //disable  
+        digitalWrite(10,LOW);//disable  
   } 
-  
   
 }
 
@@ -130,7 +162,7 @@ if(number_of_steps > 0)
 
 int get_number_of_steps(int projected_target_pixels)
 {
-  number_of_pixels = projected_target_pixels - current_position;  
+  number_of_pixels = projected_target_pixels - current_position_pixels;  
   number_of_steps = number_of_pixels * pixels_per_step;
   
 
@@ -143,8 +175,8 @@ int get_number_of_steps(int projected_target_pixels)
 void showNewNumber() {
     if (newData == true) 
     {
-        projected_target_pixels = 0;             // new for this version
-        projected_target_pixels = atoi(receivedChars);   // new for this version
+        projected_target_pixels = 0;            
+        projected_target_pixels = atoi(receivedChars);   
         if (abs(projected_target_pixels)>100)
         {
          projected_target_pixels = 0; 
@@ -158,9 +190,9 @@ void showNewNumber() {
         Serial.print(projected_target_pixels);
         Serial.print('\n');
 
-        if(projected_target_pixels != current_position)
+        if(projected_target_pixels != current_position_pixels && projected_target_pixels > small_boundary && projected_target_pixels < big_boundary)
         {
-        current_position = projected_target_pixels;
+        current_position_pixels = projected_target_pixels;
         move_motor(steps);
         }
         
