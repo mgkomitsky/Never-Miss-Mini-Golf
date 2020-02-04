@@ -66,7 +66,7 @@ void homeDevice_towards_right()
  
      
      move_motor(round(-target_zone_length_in_steps/2)); //Must be an integer
-     current_position_pixels == 0;
+     current_position_pixels == target_zone_length_in_steps/2;
   
 }
 
@@ -80,7 +80,7 @@ void homeDevice_towards_left()
 
      
      move_motor(round(target_zone_length_in_steps/2)); //Must be an integer
-     current_position_pixels == 0;
+     current_position_pixels == target_zone_length_in_steps/2;
   
 }
 
