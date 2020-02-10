@@ -13,7 +13,7 @@ int current_position_pixels = 50;
 int pixels_per_step = 2;
 int number_of_pixels = 0;
 int number_of_steps = 0;
-int target_zone_length_in_steps = 10;
+int target_zone_length_in_steps = 500;
 int small_boundary = 0;
 int big_boundary = 3000;
 
@@ -36,15 +36,15 @@ void setup() {
     pinMode(9,OUTPUT); //Direction
     pinMode(10, OUTPUT); //Enable
     pinMode(7, OUTPUT); //Pulse
-    //pinMode(2,INPUT); //Right Limit
-    //pinMode(3,INPUT); //Left Limit
+    pinMode(3,INPUT); //Right Limit
+    pinMode(2,INPUT); //Left Limit
     //attachInterrupt(digitalPinToInterrupt(left_limit_switch), homeDevice_towards_right, CHANGE);
     //attachInterrupt(digitalPinToInterrupt(right_limit_switch), homeDevice_towards_left, CHANGE);
 
     //digitalWrite(motor_pulse_pin,LOW);
     
     
-    //homeDevice_towards_left();
+    homeDevice_towards_right();
 }
 
 
@@ -63,7 +63,7 @@ void loop() {
 void homeDevice_towards_right()
 {
 
-    while(digitalRead(left_limit_switch)==LOW)
+    while(digitalRead(right_limit_switch)==LOW)
     {
       move_motor(1);
     }
@@ -78,12 +78,12 @@ void homeDevice_towards_right()
 void homeDevice_towards_left()
 {
 
-    while(digitalRead(right_limit_switch)==LOW)
+    while(digitalRead(left_limit_switch)==LOW)
     {
       move_motor(-1);
     }
 
-     
+   
      move_motor(round(target_zone_length_in_steps/2)); //Must be an integer
      current_position_pixels == target_zone_length_in_steps/2;
   
@@ -127,7 +127,7 @@ if(number_of_steps > 0)
   {
 
         digitalWrite(enable_pin,LOW);//enable
-        digitalWrite(direction_pin,HIGH);//set direction
+        digitalWrite(direction_pin,LOW);//set direction
 
       for (int i = 0; i <= number_of_steps; i++)
 
@@ -145,7 +145,7 @@ if(number_of_steps > 0)
   
   {
         digitalWrite(10,LOW);//enable
-        digitalWrite(direction_pin,LOW);//set direction
+        digitalWrite(direction_pin,HIGH);//set direction
    
 
       for (int i = 0; i >= number_of_steps; i--)
