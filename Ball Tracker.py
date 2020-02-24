@@ -1,7 +1,3 @@
-#This code does the image tracking to calculate the projected target for the ball.
-#Be sure to install the imutils, OpenCV, and serial packages.
-
-
 from collections import deque
 from imutils.video import VideoStream
 import numpy as np
@@ -10,20 +6,21 @@ import cv2
 import imutils
 import serial
 import time
+import statsmodels.api as sm
 
-#arduino = serial.Serial('COM4',9600)
+arduino = serial.Serial('COM4',9600)
 time.sleep(2)
 
 def nothing(x):
     pass
 
 cv2.namedWindow("Tracking")
-cv2.createTrackbar("LH", "Tracking", 5, 255, nothing)
-cv2.createTrackbar("LS", "Tracking", 0, 255, nothing)
-cv2.createTrackbar("LV", "Tracking", 247, 255, nothing)
-cv2.createTrackbar("UH", "Tracking", 97, 255, nothing)
-cv2.createTrackbar("US", "Tracking", 16, 255, nothing)
-cv2.createTrackbar("UV", "Tracking", 255, 255, nothing)
+cv2.createTrackbar("LH", "Tracking", 17, 255, nothing)
+cv2.createTrackbar("LS", "Tracking", 119, 255, nothing)
+cv2.createTrackbar("LV", "Tracking", 119, 255, nothing)
+cv2.createTrackbar("UH", "Tracking", 32, 255, nothing)
+cv2.createTrackbar("US", "Tracking", 163, 255, nothing)
+cv2.createTrackbar("UV", "Tracking", 251, 255, nothing)
 
 
 # construct the argument parse and parse the arguments
@@ -33,6 +30,7 @@ cv2.createTrackbar("UV", "Tracking", 255, 255, nothing)
 #args = vars(ap.parse_args())
 
 pts = deque(maxlen=30)
+slope_average = deque(maxlen=30)
 counter = 0
 (dx, dy) = (0, 0)
 threshold = 100
@@ -173,22 +171,38 @@ while True:
 
             dx = pts[-10][0] - pts[i][0]
             dy = pts[-10][1] - pts[i][1]
+            pts1 = np.transpose(pts)
+            x1 = pts1[0]
+            y1 = pts1[1]
+            X = sm.add_constant(x1)
+            model = sm.OLS(y1,X)
+            results = model.fit()
+
+
             if dx == 0 or dx > 0 or center[0] < threshold or center[1] > bottom_gutter or center[1] < top_gutter or center[0] > target_zone:
                 continue
             else:
-                slope = dy / dx
-                ##print(str(m) + "  " + str(round(m)))
-                projected_target = round(slope * (target_zone - center[0]) + center[1])
+                #slope = dy / dx
+                slope = results.params[1]
+
+                #This should help remove some of the outlier values by using the average of the last 30 measurements
+
+                slope_average.appendleft(slope)
+                smoothed_slope = np.mean(slope_average)
+                projected_target = int(smoothed_slope * (target_zone - center[0]) + center[1])
+
+                #projected_target = int(slope * (target_zone - center[0]) + center[1])
+
                 if projected_target < top_gutter or projected_target > bottom_gutter:
                     continue
 
                 else:
                     frame = cv2.line(frame,center,(target_zone,projected_target),(0,0,255),3,8,0)
-                    #number_of_steps = projected_target - current_position_pixels
+                    number_of_steps = projected_target - current_position_pixels
                     cv2.circle(frame, (target_zone, projected_target), 5, (255, 0, 255), -1)
                     current_position_pixels = projected_target
                     print("projected_target {}".format(projected_target))
-                    #arduino.write((str(projected_target) + '\n').encode())
+                    arduino.write((str(projected_target) + '\n').encode())
                     #data = arduino.readline()
                     #if (data !=""):
                       #  print(data)
