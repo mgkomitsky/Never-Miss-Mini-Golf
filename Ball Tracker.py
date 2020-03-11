@@ -24,6 +24,7 @@ response = ''
 ball_radius = 0
 target_radius = 0
 command = 0
+hole_threshold = 50
 
 #arduino = serial.Serial('COM4',9600)
 time.sleep(2)
@@ -246,6 +247,12 @@ while True:
                     #Determine if the hole is BELOW, ABOVE, OR EQUAL to the projected target
                     #Only send if the command is different
 
+                    if (target_center[1] >= top_gutter):
+                        print("STOP")
+
+                    if (target_center[1] <= bottom_gutter):
+                        print("STOP")
+
 
                     if (projected_target > 200) and command != 1:
                         command = 1
@@ -256,7 +263,7 @@ while True:
                         command = 2
                         print("MOVE DOWN")
 
-                    elif (projected_target == target_center[1]):
+                    elif (projected_target in range(target_center[1] - hole_threshold,target_center[1])):
                         command = 0
                         print("STOP")
 
