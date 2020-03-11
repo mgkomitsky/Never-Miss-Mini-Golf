@@ -20,7 +20,7 @@ target_zone = 500
 current_position_pixels = 0
 number_of_steps = 0
 rest_position = 200
-response = ''
+#response = ''
 ball_radius = 0
 target_radius = 0
 command = 0
@@ -189,6 +189,7 @@ while True:
         ((target_x, target_y), target_radius) = cv2.minEnclosingCircle(target_c)
         M = cv2.moments(target_c)
         target_center = (target_zone, int(M["m01"] / M["m00"]))
+        cv2.circle(frame, target_center, 5, (255, 0, 0), -1)
 
     print(target_center)
 
