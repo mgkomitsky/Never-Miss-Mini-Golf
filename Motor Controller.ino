@@ -2,7 +2,7 @@
 
 
 // Example 4 - Receive a number as text and convert it to an int
-
+//test
 const byte numChars = 32;
 char receivedChars[numChars];   // an array to store the received data
 
