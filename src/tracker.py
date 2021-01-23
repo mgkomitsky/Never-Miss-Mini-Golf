@@ -64,9 +64,8 @@ class Tracker():
         self.TARGET_HSV = [[target_l_h, target_l_s, target_l_v],
                            [target_u_h, target_u_s, target_u_v]]
 
-    def setupVideoStream(self):
-        #self.cap = cv2.VideoCapture(0)
-        self.cap = cv2.VideoCapture('test2.mkv')
+    def setupVideoStream(self, file_name=0):
+        self.cap = cv2.VideoCapture(file_name)
 
     def showFrame(self):
         cv2.imshow("Video", self.currentFrame)
