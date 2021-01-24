@@ -79,6 +79,7 @@ class Tracker():
         contours = imutils.grab_contours(contours)
 
         contours_map = map(cv2.contourArea,contours)
+        # if no contours, return some default value
         if len(contours) > 0:
             ball_c = max(contours, key=cv2.contourArea)
 
