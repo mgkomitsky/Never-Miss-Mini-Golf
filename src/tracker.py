@@ -78,10 +78,14 @@ class Tracker():
             mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours = imutils.grab_contours(contours)
 
-        ball_c = max(contours, key=cv2.contourArea)
+        contours_map = map(cv2.contourArea,contours)
+        if len(contours) > 0:
+            ball_c = max(contours, key=cv2.contourArea)
 
-        ((ball_x, ball_y), ball_radius) = cv2.minEnclosingCircle(ball_c)
-
+            ((ball_x, ball_y), ball_radius) = cv2.minEnclosingCircle(ball_c)
+        else:
+            (ball_x, ball_y), ball_radius = (0,0), 10
+       
         cv2.circle(self.currentFrame, (int(ball_x), int(ball_y)),
                    int(ball_radius), (0, 255, 0), 2)
 
