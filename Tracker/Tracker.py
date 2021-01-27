@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import imutils
 from filterpy.kalman import KalmanFilter
+import requests
+import json
 
 class Tracker():
 
@@ -114,7 +116,17 @@ class Tracker():
 
     def checkESPState(self):
         #Get json data to set states of the machine
-        pass
+        #response = requests.get("http://52.119.101.179:7980/metrics")
+        text = {
+	    "ip": "192.168.100.76",
+	    "time": "630257",
+	    "ssid": "ECEN403-Development",
+	    "speed": "0",
+	    "mode": "0"}
+
+        response = json.dumps(text)
+
+        print(response)
 
     def everyFrame(self):  # Run this set of functions for every frame
         self.setFrame()
