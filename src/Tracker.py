@@ -25,7 +25,7 @@ class Tracker():
         self.TARGET_HSV = [[0, 0, 0], [255, 255, 255]]
 
         self.f = KalmanFilter(dim_x=2, dim_z=2)
-
+        #Fun comments
     def nothing(self, x):
         pass
 
